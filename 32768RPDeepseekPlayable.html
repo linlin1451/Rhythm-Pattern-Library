@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>32,768 Rhythm Pattern Library</title>
+    
+    <!-- Tone.js CDN for audio synthesis -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid #2d4059;
+        }
+        
+        h1 {
+            color: #4cc9f0;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        h2 {
+            color: #f0a500;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #2d4059;
+        }
+        
+        h3 {
+            color: #43a047;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #b8b8b8;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        .library-info {
+            background-color: rgba(15, 52, 96, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #4cc9f0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .info-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 6px;
+        }
+        
+        .section {
+            background-color: #16213e;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid #2d4059;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 200px;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #b8b8b8;
+        }
+        
+        input, select, button {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #2d4059;
+            background-color: #0f3460;
+            color: #e6e6e6;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4cc9f0;
+            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #0f3460 0%, #2d4059 100%);
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid #4cc9f0;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #2d4059 0%, #4cc9f0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+            border-color: #66bb6a;
+        }
+        
+        .primary-btn:hover {
+            background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
+        }
+        
+        .pattern-display {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        .pattern-id {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f0a500;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .pattern-string {
+            font-family: monospace;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid #2d4059;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .visual-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 20px;
+        }
+        
+        .grid-row {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .grid-step-number {
+            width: 40px;
+            text-align: center;
+            color: #b8b8b8;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .grid-cell {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-weight: 700;
+            border: 2px solid transparent;
+            transition: all 0.1s ease;
+        }
+        
+        .hit-cell {
+            background-color: #333;
+            border-color: #fff;
+        }
+        
+        .sustain-cell {
+            background-color: #444;
+        }
+        
+        .quarter-note {
+            background-color: #f44336 !important;
+        }
+        
+        .eighth-note {
+            background-color: #2196f3 !important;
+        }
+        
+        .sixteenth-note {
+            background-color: #ffeb3b !important;
+            color: #333;
+        }
+        
+        /* Added: Active playback highlight style */
+        .playing-cell {
+            box-shadow: 0 0 15px 5px rgba(76, 201, 240, 0.8);
+            border-color: #4cc9f0 !important;
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        
+        .note-analysis {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #2d4059;
+        }
+        
+        .notes-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .note-chip {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .note-duration {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+        
+        .pattern-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .example-pattern {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #2d4059;
+            transition: all 0.3s ease;
+        }
+        
+        .example-pattern:hover {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-color: #4cc9f0;
+            transform: translateY(-3px);
+        }
+        
+        .example-id {
+            font-weight: 700;
+            color: #f0a500;
+            margin-bottom: 8px;
+        }
+        
+        .example-string {
+            font-family: monospace;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .export-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        
+        .export-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            flex: 1;
+        }
+        
+        .similar-patterns {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .similar-pattern {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        
+        .similar-pattern:hover {
+            background-color: rgba(76, 201, 240, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .similar-id {
+            font-weight: 700;
+            color: #4cc9f0;
+            margin-bottom: 5px;
+        }
+        
+        .similar-string {
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #2d4059;
+            color: #b8b8b8;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group {
+                min-width: 100%;
+            }
+            
+            .pattern-string {
+                font-size: 1.4rem;
+            }
+            
+            .grid-cell {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>32,768 Rhythm Pattern Library</h1>
+            <p class="subtitle">Explore all possible 16-step rhythm patterns starting with a hit</p>
+            
+            <div class="library-info">
+                <p><strong>Total Patterns:</strong> 32,768 (2¹⁵) | <strong>First step:</strong> Always X (hit) | <strong>Steps 2-16:</strong> X (hit) or - (sustain)</p>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Notation:</strong><br>
+                        X = Note hit/onset<br>
+                        - = Note sustain (held from previous hit)
+                    </div>
+                    <div class="info-item">
+                        <strong>Color Coding:</strong><br>
+                        Red = Quarter note (4+ steps)<br>
+                        Blue = Eighth note (2-3 steps)<br>
+                        Yellow = Sixteenth note (1 step)
+                    </div>
+                    <div class="info-item">
+                        <strong>Base Pattern (ID 0):</strong><br>
+                        X--- X--- X--- X---<br>
+                        Standard 4/4 quarter notes
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="section">
+            <h2>Pattern Explorer</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="pattern-id">Pattern ID (0-32767):</label>
+                    <input type="number" id="pattern-id" min="0" max="32767" value="0">
+                </div>
+                <div class="control-group">
+                    <label for="pattern-input">Or enter pattern (16 chars, X or -):</label>
+                    <input type="text" id="pattern-input" placeholder="X---X---X---X---" maxlength="16">
+                </div>
+                <!-- Added: Play Rhythm button -->
+                <button id="play-btn">▶ Play Rhythm</button>
+                <button id="random-btn">Random Pattern</button>
+                <button id="prev-btn">Previous</button>
+                <button id="next-btn">Next</button>
+            </div>
+            
+            <div class="pattern-display">
+                <div class="pattern-id">
+                    <span id="current-id">0</span>
+                    <span id="binary-id" style="font-size: 0.9rem; color: #b8b8b8;"></span>
+                </div>
+                <div class="pattern-string" id="pattern-string">X--- X--- X--- X---</div>
+                
+                <div class="visual-grid" id="visual-grid">
+                    <!-- Grid will be generated here -->
+                </div>
+                
+                <div class="note-analysis">
+                    <h3>Note Analysis</h3>
+                    <div id="notes-list" class="notes-list">
+                        <!-- Note analysis will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Base Pattern Examples (ID 0-9)</h2>
+            <div class="pattern-examples" id="pattern-examples">
+                <!-- Base patterns will be generated here -->
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Export All Patterns</h2>
+            <div class="export-section">
+                <div class="export-controls">
+                    <div class="control-group">
+                        <label for="export-start">Start ID:</label>
+                        <input type="number" id="export-start" min="0" max="32767" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label for="export-end">End ID:</label>
+                        <input type="number" id="export-end" min="0" max="32767" value="100">
+                    </div>
+                </div>
+                <button id="export-btn" class="primary-btn">Export Patterns as Text File</button>
+            </div>
+            <p style="margin-top: 15px; color: #b8b8b8; font-size: 0.9rem;">
+                Export the complete library of 32,768 patterns or any range you specify.
+            </p>
+        </div>
+        
+        <div class="section">
+            <h2>Pattern Matching</h2>
+            <div class="controls">
+                <div class="control-group" style="flex: 1;">
+                    <label for="match-input">Enter pattern to find (16 chars, X or -):</label>
+                    <input type="text" id="match-input" placeholder="X---X---X---X---" maxlength="16">
+                </div>
+                <button id="match-btn">Find Matching Pattern ID</button>
+            </div>
+            <div id="match-result" class="pattern-display" style="display: none; margin-top: 20px;">
+                <h3>Match Result</h3>
+                <div class="pattern-id">
+                    <span id="match-id"></span>
+                </div>
+                <div class="pattern-string" id="match-pattern-string"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Similar Pattern Finder</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="similar-id">Pattern ID to compare:</label>
+                    <input type="number" id="similar-id" min="0" max="32767" value="0">
+                </div>
+                <div class="control-group">
+                    <label for="similarity-threshold">Max difference (1-8):</label>
+                    <select id="similarity-threshold">
+                        <option value="1">1 step</option>
+                        <option value="2" selected>2 steps</option>
+                        <option value="3">3 steps</option>
+                        <option value="4">4 steps</option>
+                        <option value="5">5 steps</option>
+                        <option value="6">6 steps</option>
+                        <option value="7">7 steps</option>
+                        <option value="8">8 steps</option>
+                    </select>
+                </div>
+                <button id="find-similar-btn">Find Similar Patterns</button>
+            </div>
+            <div id="similar-results" style="display: none;">
+                <h3>Similar Patterns</h3>
+                <div id="similar-patterns-container" class="similar-patterns">
+                    <!-- Similar patterns will be generated here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color quarter-note"></div>
+                <span>Quarter note (4+ steps duration)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color eighth-note"></div>
+                <span>Eighth note (2-3 steps duration)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color sixteenth-note"></div>
+                <span>Sixteenth note (1 step duration)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color hit-cell"></div>
+                <span>Hit (X) - note onset</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color sustain-cell"></div>
+                <span>Sustain (-) - note continues</span>
+            </div>
+            <!-- Added: Playing highlight legend -->
+            <div class="legend-item">
+                <div style="width: 20px; height: 20px; border-radius: 4px; background-color: transparent; border: 2px solid #4cc9f0; box-shadow: 0 0 10px #4cc9f0;"></div>
+                <span>Playing - current step highlight</span>
+            </div>
+        </div>
+        
+        <footer>
+            <p>32,768 Rhythm Pattern Library | Interactive Demo</p>
+            <p>All patterns use 16-step sequences with first step always being X (hit)</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize the pattern library
+        const TOTAL_PATTERNS = 32768;
+        const PATTERN_LENGTH = 16;
+        
+        // Get DOM elements
+        const patternIdInput = document.getElementById('pattern-id');
+        const patternInput = document.getElementById('pattern-input');
+        const currentIdSpan = document.getElementById('current-id');
+        const binaryIdSpan = document.getElementById('binary-id');
+        const patternStringDiv = document.getElementById('pattern-string');
+        const visualGridDiv = document.getElementById('visual-grid');
+        const notesListDiv = document.getElementById('notes-list');
+        const patternExamplesDiv = document.getElementById('pattern-examples');
+        const exportStartInput = document.getElementById('export-start');
+        const exportEndInput = document.getElementById('export-end');
+        const matchInput = document.getElementById('match-input');
+        const matchResultDiv = document.getElementById('match-result');
+        const matchIdSpan = document.getElementById('match-id');
+        const matchPatternStringDiv = document.getElementById('match-pattern-string');
+        const similarIdInput = document.getElementById('similar-id');
+        const similarityThresholdSelect = document.getElementById('similarity-threshold');
+        const similarResultsDiv = document.getElementById('similar-results');
+        const similarPatternsContainer = document.getElementById('similar-patterns-container');
+        
+        // ADDED: Audio playback variables
+        let synth = null;
+        let isPlaying = false;
+        let currentStep = -1;
+        let playbackTimeout = null;
+        let gridCells = [];
+        const BPM = 120;
+        const STEP_DURATION = (60 / BPM) / 4; // 16th note duration in seconds
+        
+        // Generate pattern string from ID
+        function getPatternString(id) {
+            // First bit is always 1 (X), then 15 bits for the remaining steps
+            let binary = (id & 0x7FFF).toString(2).padStart(15, '0');
+            
+            // First step is always X
+            let pattern = 'X';
+            
+            // Convert binary to pattern string
+            for (let i = 0; i < 15; i++) {
+                pattern += binary.charAt(i) === '1' ? 'X' : '-';
+            }
+            
+            // Format with spaces for readability
+            return pattern.substring(0, 4) + ' ' + 
+                   pattern.substring(4, 8) + ' ' + 
+                   pattern.substring(8, 12) + ' ' + 
+                   pattern.substring(12, 16);
+        }
+        
+        // Get pattern ID from string
+        function getPatternId(patternStr) {
+            // Remove spaces
+            patternStr = patternStr.replace(/\s+/g, '');
+            
+            // First character must be X
+            if (patternStr.charAt(0) !== 'X') {
+                return -1; // Invalid pattern
+            }
+            
+            // Convert to binary string
+            let binary = '';
+            for (let i = 1; i < PATTERN_LENGTH; i++) {
+                binary += patternStr.charAt(i) === 'X' ? '1' : '0';
+            }
+            
+            // Convert binary to decimal
+            return parseInt(binary, 2);
+        }
+        
+        // Validate pattern string
+        function validatePattern(patternStr) {
+            // Remove spaces
+            patternStr = patternStr.replace(/\s+/g, '');
+            
+            // Check length
+            if (patternStr.length !== PATTERN_LENGTH) {
+                return false;
+            }
+            
+            // First character must be X
+            if (patternStr.charAt(0) !== 'X') {
+                return false;
+            }
+            
+            // All characters must be X or -
+            for (let i = 0; i < PATTERN_LENGTH; i++) {
+                if (patternStr.charAt(i) !== 'X' && patternStr.charAt(i) !== '-') {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        // Analyze pattern to get note durations
+        function analyzePattern(patternStr) {
+            // Remove spaces
+            patternStr = patternStr.replace(/\s+/g, '');
+            
+            let notes = [];
+            let currentNoteStart = 0;
+            let currentNoteDuration = 1;
+            
+            for (let i = 1; i < PATTERN_LENGTH; i++) {
+                if (patternStr.charAt(i) === 'X') {
+                    // End of current note, start of new note
+                    notes.push({
+                        position: currentNoteStart,
+                        duration: currentNoteDuration,
+                        type: getNoteType(currentNoteDuration)
+                    });
+                    
+                    currentNoteStart = i;
+                    currentNoteDuration = 1;
+                } else {
+                    // Continue current note
+                    currentNoteDuration++;
+                }
+            }
+            
+            // Add the last note
+            notes.push({
+                position: currentNoteStart,
+                duration: currentNoteDuration,
+                type: getNoteType(currentNoteDuration)
+            });
+            
+            return notes;
+        }
+        
+        // Get note type based on duration
+        function getNoteType(duration) {
+            if (duration === 1) return 'sixteenth';
+            if (duration <= 3) return 'eighth';
+            return 'quarter';
+        }
+        
+        // Get note color class based on type
+        function getNoteColorClass(noteType) {
+            switch(noteType) {
+                case 'quarter': return 'quarter-note';
+                case 'eighth': return 'eighth-note';
+                case 'sixteenth': return 'sixteenth-note';
+                default: return '';
+            }
+        }
+        
+        // Display pattern by ID
+        function displayPattern(id) {
+            // Validate ID
+            if (id < 0 || id >= TOTAL_PATTERNS) {
+                id = 0;
+            }
+            
+            // Update inputs
+            patternIdInput.value = id;
+            const patternStr = getPatternString(id);
+            patternInput.value = patternStr.replace(/\s+/g, '');
+            
+            // Update display
+            currentIdSpan.textContent = id;
+            binaryIdSpan.textContent = `(${(id & 0x7FFF).toString(2).padStart(15, '0')})`;
+            patternStringDiv.textContent = patternStr;
+            
+            // Update visual grid
+            updateVisualGrid(patternStr);
+            
+            // Update note analysis
+            updateNoteAnalysis(patternStr);
+            
+            // Update similar pattern ID input
+            similarIdInput.value = id;
+        }
+        
+        // Update visual grid
+        function updateVisualGrid(patternStr) {
+            // Remove spaces
+            patternStr = patternStr.replace(/\s+/g, '');
+            
+            // Clear grid
+            visualGridDiv.innerHTML = '';
+            
+            // Create step numbers row
+            const stepRow = document.createElement('div');
+            stepRow.className = 'grid-row';
+            
+            for (let i = 0; i < PATTERN_LENGTH; i++) {
+                const stepCell = document.createElement('div');
+                stepCell.className = 'grid-step-number';
+                stepCell.textContent = i + 1;
+                stepRow.appendChild(stepCell);
+            }
+            
+            visualGridDiv.appendChild(stepRow);
+            
+            // Create pattern row
+            const patternRow = document.createElement('div');
+            patternRow.className = 'grid-row';
+            
+            // Analyze pattern to get note colors
+            const notes = analyzePattern(patternStr);
+            let currentNoteIndex = 0;
+            let currentNoteStep = 0;
+            
+            // Clear grid cells array
+            gridCells = [];
+            
+            for (let i = 0; i < PATTERN_LENGTH; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.dataset.step = i;
+                
+                // Set cell content
+                cell.textContent = patternStr.charAt(i);
+                
+                // Check if this is a hit or sustain
+                if (patternStr.charAt(i) === 'X') {
+                    cell.classList.add('hit-cell');
+                    
+                    // Find which note this hit belongs to
+                    for (let j = 0; j < notes.length; j++) {
+                        if (notes[j].position === i) {
+                            currentNoteIndex = j;
+                            currentNoteStep = 0;
+                            break;
+                        }
+                    }
+                } else {
+                    cell.classList.add('sustain-cell');
+                }
+                
+                // Add color based on note type
+                if (notes[currentNoteIndex]) {
+                    cell.classList.add(getNoteColorClass(notes[currentNoteIndex].type));
+                    currentNoteStep++;
+                    
+                    // Move to next note if we've reached the end of current note
+                    if (currentNoteStep >= notes[currentNoteIndex].duration) {
+                        currentNoteIndex = Math.min(currentNoteIndex + 1, notes.length - 1);
+                        currentNoteStep = 0;
+                    }
+                }
+                
+                patternRow.appendChild(cell);
+                gridCells.push(cell);
+            }
+            
+            visualGridDiv.appendChild(patternRow);
+        }
+        
+        // Update note analysis
+        function updateNoteAnalysis(patternStr) {
+            // Remove spaces
+            patternStr = patternStr.replace(/\s+/g, '');
+            
+            // Analyze pattern
+            const notes = analyzePattern(patternStr);
+            
+            // Clear notes list
+            notesListDiv.innerHTML = '';
+            
+            // Add each note
+            notes.forEach((note, index) => {
+                const noteChip = document.createElement('div');
+                noteChip.className = 'note-chip';
+                noteChip.classList.add(getNoteColorClass(note.type));
+                
+                const noteInfo = document.createElement('div');
+                noteInfo.innerHTML = `<strong>Note ${index + 1}</strong>: Step ${note.position + 1}, ${note.type} note`;
+                
+                const durationBadge = document.createElement('div');
+                durationBadge.className = 'note-duration';
+                durationBadge.textContent = `${note.duration} step${note.duration > 1 ? 's' : ''}`;
+                
+                noteChip.appendChild(noteInfo);
+                noteChip.appendChild(durationBadge);
+                notesListDiv.appendChild(noteChip);
+            });
+        }
+        
+        // Generate base pattern examples
+        function generateBasePatternExamples() {
+            patternExamplesDiv.innerHTML = '';
+            
+            for (let i = 0; i < 10; i++) {
+                const patternStr = getPatternString(i);
+                const exampleDiv = document.createElement('div');
+                exampleDiv.className = 'example-pattern';
+                
+                exampleDiv.innerHTML = `
+                    <div class="example-id">ID ${i}</div>
+                    <div class="example-string">${patternStr}</div>
+                    <button class="load-example-btn" data-id="${i}" style="padding: 5px 10px; font-size: 0.9rem;">Load This Pattern</button>
+                `;
+                
+                patternExamplesDiv.appendChild(exampleDiv);
+            }
+            
+            // Add event listeners to load buttons
+            document.querySelectorAll('.load-example-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    displayPattern(id);
+                });
+            });
+        }
+        
+        // Find similar patterns
+        function findSimilarPatterns(baseId, maxDistance) {
+            const basePattern = getPatternString(baseId).replace(/\s+/g, '');
+            const similar = [];
+            
+            // Check patterns around the base ID
+            const startId = Math.max(0, baseId - 100);
+            const endId = Math.min(TOTAL_PATTERNS - 1, baseId + 100);
+            
+            for (let id = startId; id <= endId; id++) {
+                if (id === baseId) continue;
+                
+                const pattern = getPatternString(id).replace(/\s+/g, '');
+                let distance = 0;
+                
+                // Calculate Hamming distance (difference in steps)
+                for (let i = 0; i < PATTERN_LENGTH; i++) {
+                    if (pattern.charAt(i) !== basePattern.charAt(i)) {
+                        distance++;
+                        if (distance > maxDistance) break;
+                    }
+                }
+                
+                if (distance <= maxDistance) {
+                    similar.push({ id, pattern, distance });
+                }
+                
+                // Limit results for performance
+                if (similar.length >= 50) break;
+            }
+            
+            // Sort by distance
+            similar.sort((a, b) => a.distance - b.distance);
+            
+            return similar;
+        }
+        
+        // Display similar patterns
+        function displaySimilarPatterns(baseId) {
+            const maxDistance = parseInt(similarityThresholdSelect.value);
+            const similarPatterns = findSimilarPatterns(baseId, maxDistance);
+            
+            // Clear container
+            similarPatternsContainer.innerHTML = '';
+            
+            if (similarPatterns.length === 0) {
+                similarPatternsContainer.innerHTML = '<p style="text-align: center; color: #b8b8b8;">No similar patterns found within the specified distance.</p>';
+            } else {
+                similarPatterns.forEach(item => {
+                    const patternDiv = document.createElement('div');
+                    patternDiv.className = 'similar-pattern';
+                    patternDiv.setAttribute('data-id', item.id);
+                    
+                    const patternFormatted = item.pattern.substring(0, 4) + ' ' + 
+                                             item.pattern.substring(4, 8) + ' ' + 
+                                             item.pattern.substring(8, 12) + ' ' + 
+                                             item.pattern.substring(12, 16);
+                    
+                    patternDiv.innerHTML = `
+                        <div class="similar-id">ID ${item.id}</div>
+                        <div class="similar-string">${patternFormatted}</div>
+                        <div style="font-size: 0.8rem; color: #b8b8b8;">Diff: ${item.distance} step${item.distance > 1 ? 's' : ''}</div>
+                    `;
+                    
+                    // Add click event to load this pattern
+                    patternDiv.addEventListener('click', function() {
+                        const id = parseInt(this.getAttribute('data-id'));
+                        displayPattern(id);
+                    });
+                    
+                    similarPatternsContainer.appendChild(patternDiv);
+                });
+            }
+            
+            // Show results container
+            similarResultsDiv.style.display = 'block';
+        }
+        
+        // Export patterns to text file
+        function exportPatterns(startId, endId) {
+            // Validate range
+            startId = Math.max(0, Math.min(startId, TOTAL_PATTERNS - 1));
+            endId = Math.max(startId, Math.min(endId, TOTAL_PATTERNS - 1));
+            
+            let content = `# 32,768 Rhythm Pattern Library\n`;
+            content += `# Format: ID: Pattern (X = hit, - = sustain)\n`;
+            content += `# Export range: ID ${startId} - ${endId}\n`;
+            content += `# Total patterns in this file: ${endId - startId + 1}\n`;
+            content += `# Generated on ${new Date().toLocaleString()}\n\n`;
+            
+            // Add patterns
+            for (let id = startId; id <= endId; id++) {
+                // Add section headers every 1000 patterns
+                if (id % 1000 === 0 && id !== startId) {
+                    content += `\n# Patterns ${id} - ${Math.min(id + 999, endId)}\n`;
+                }
+                
+                const patternStr = getPatternString(id);
+                content += `${id}: ${patternStr}\n`;
+            }
+            
+            // Create and download file
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rhythm_patterns_${startId}_to_${endId}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // ============================================
+        // ADDED: Audio Playback Functions
+        // ============================================
+        
+        // Initialize audio synth
+        function initAudio() {
+            // Create a simple synth with percussive envelope
+            synth = new Tone.Synth({
+                oscillator: {
+                    type: 'sine'
+                },
+                envelope: {
+                    attack: 0.001,
+                    decay: 0.1,
+                    sustain: 0,
+                    release: 0.05
+                }
+            }).toDestination();
+            
+            // Set volume
+            synth.volume.value = -10;
+        }
+        
+        // Clear playback highlights
+        function clearPlaybackHighlights() {
+            if (gridCells.length > 0) {
+                gridCells.forEach(cell => {
+                    cell.classList.remove('playing-cell');
+                });
+            }
+        }
+        
+        // Play the current rhythm pattern
+        function playRhythm() {
+            // Stop if already playing
+            if (isPlaying) {
+                stopPlayback();
+                return;
+            }
+            
+            // Initialize audio if needed
+            if (!synth) {
+                initAudio();
+            }
+            
+            // Get current pattern string without spaces
+            const pattern = patternStringDiv.textContent.replace(/\s+/g, '');
+            
+            // Clear any existing highlights
+            clearPlaybackHighlights();
+            
+            // Start playback
+            isPlaying = true;
+            currentStep = 0;
+            const playButton = document.getElementById('play-btn');
+            playButton.textContent = '⏹ Stop Playback';
+            playButton.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
+            
+            // Schedule playback for each step
+            function playStep(step) {
+                if (step >= PATTERN_LENGTH || !isPlaying) {
+                    // End of pattern or stopped
+                    stopPlayback();
+                    return;
+                }
+                
+                currentStep = step;
+                
+                // Highlight current grid cell
+                if (gridCells.length > step) {
+                    // Clear previous highlight
+                    clearPlaybackHighlights();
+                    
+                    // Add highlight to current cell
+                    gridCells[step].classList.add('playing-cell');
+                }
+                
+                // Play sound if this step has a hit (X)
+                if (pattern.charAt(step) === 'X') {
+                    // Trigger short sound
+                    synth.triggerAttackRelease('C4', '16n');
+                }
+                
+                // Schedule next step
+                playbackTimeout = setTimeout(() => {
+                    playStep(step + 1);
+                }, STEP_DURATION * 1000);
+            }
+            
+            // Start playback from step 0
+            playStep(0);
+        }
+        
+        // Stop playback
+        function stopPlayback() {
+            isPlaying = false;
+            currentStep = -1;
+            
+            if (playbackTimeout) {
+                clearTimeout(playbackTimeout);
+                playbackTimeout = null;
+            }
+            
+            // Clear highlights
+            clearPlaybackHighlights();
+            
+            // Reset play button
+            const playButton = document.getElementById('play-btn');
+            playButton.textContent = '▶ Play Rhythm';
+            playButton.style.background = '';
+        }
+        
+        // ============================================
+        // End of Audio Playback Functions
+        // ============================================
+        
+        // Initialize the demo
+        function init() {
+            // Display initial pattern
+            displayPattern(0);
+            
+            // Generate base pattern examples
+            generateBasePatternExamples();
+            
+            // Set export range to full library by default
+            exportEndInput.value = TOTAL_PATTERNS - 1;
+            
+            // Event listeners
+            patternIdInput.addEventListener('change', function() {
+                const id = parseInt(this.value);
+                displayPattern(id);
+            });
+            
+            patternInput.addEventListener('input', function() {
+                const pattern = this.value;
+                if (validatePattern(pattern)) {
+                    const id = getPatternId(pattern);
+                    if (id >= 0) {
+                        displayPattern(id);
+                    }
+                }
+            });
+            
+            patternInput.addEventListener('change', function() {
+                const pattern = this.value;
+                if (!validatePattern(pattern)) {
+                    alert('Invalid pattern! Pattern must be 16 characters long, start with X, and contain only X or -.');
+                    this.value = getPatternString(parseInt(patternIdInput.value)).replace(/\s+/g, '');
+                }
+            });
+            
+            // ADDED: Play button event listener
+            document.getElementById('play-btn').addEventListener('click', playRhythm);
+            
+            document.getElementById('random-btn').addEventListener('click', function() {
+                const randomId = Math.floor(Math.random() * TOTAL_PATTERNS);
+                displayPattern(randomId);
+            });
+            
+            document.getElementById('prev-btn').addEventListener('click', function() {
+                const currentId = parseInt(patternIdInput.value);
+                const prevId = currentId > 0 ? currentId - 1 : TOTAL_PATTERNS - 1;
+                displayPattern(prevId);
+            });
+            
+            document.getElementById('next-btn').addEventListener('click', function() {
+                const currentId = parseInt(patternIdInput.value);
+                const nextId = currentId < TOTAL_PATTERNS - 1 ? currentId + 1 : 0;
+                displayPattern(nextId);
+            });
+            
+            document.getElementById('export-btn').addEventListener('click', function() {
+                const startId = parseInt(exportStartInput.value);
+                const endId = parseInt(exportEndInput.value);
+                
+                if (startId > endId) {
+                    alert('Start ID must be less than or equal to End ID');
+                    return;
+                }
+                
+                exportPatterns(startId, endId);
+            });
+            
+            document.getElementById('match-btn').addEventListener('click', function() {
+                const pattern = matchInput.value;
+                
+                if (!validatePattern(pattern)) {
+                    alert('Invalid pattern! Pattern must be 16 characters long, start with X, and contain only X or -.');
+                    return;
+                }
+                
+                const id = getPatternId(pattern);
+                matchIdSpan.textContent = `ID: ${id}`;
+                matchPatternStringDiv.textContent = getPatternString(id);
+                matchResultDiv.style.display = 'block';
+                
+                // Scroll to result
+                matchResultDiv.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            document.getElementById('find-similar-btn').addEventListener('click', function() {
+                const baseId = parseInt(similarIdInput.value);
+                if (baseId < 0 || baseId >= TOTAL_PATTERNS) {
+                    alert('Invalid pattern ID! Must be between 0 and 32767.');
+                    return;
+                }
+                
+                displaySimilarPatterns(baseId);
+                
+                // Scroll to results
+                similarResultsDiv.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Left arrow - previous pattern
+                if (e.key === 'ArrowLeft' && !e.target.matches('input, textarea, select')) {
+                    e.preventDefault();
+                    document.getElementById('prev-btn').click();
+                }
+                
+                // Right arrow - next pattern
+                if (e.key === 'ArrowRight' && !e.target.matches('input, textarea, select')) {
+                    e.preventDefault();
+                    document.getElementById('next-btn').click();
+                }
+                
+                // R - random pattern
+                if (e.key === 'r' && !e.target.matches('input, textarea, select')) {
+                    e.preventDefault();
+                    document.getElementById('random-btn').click();
+                }
+                
+                // Space - play/stop rhythm
+                if (e.key === ' ' && !e.target.matches('input, textarea, select')) {
+                    e.preventDefault();
+                    document.getElementById('play-btn').click();
+                }
+            });
+            
+            // Initialize audio system when user interacts (required for browser autoplay policies)
+            document.addEventListener('click', function initAudioOnInteraction() {
+                if (!synth) {
+                    initAudio();
+                }
+                document.removeEventListener('click', initAudioOnInteraction);
+            }, { once: true });
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
